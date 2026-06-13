@@ -1,0 +1,54 @@
+from tkinter import * 
+from tkinter import ttk
+from tkinter import filedialog
+from tkinter import messagebox
+
+global file_paths
+files_paths: list = []
+
+def main() -> None:
+    root = Tk()
+    root.title("JustMerge")
+    frm = ttk.Frame(root, padding=10)
+    frm.grid()
+    ttk.Button(frm, text="Choose file", command=choose_file).grid(column=0, row=0)
+    ttk.Button(frm, text="Choose file", command=choose_file).grid(column=1, row=0)
+    ttk.Button(frm, text="Merge", command=merge).grid(column=0, row=1)
+    root.mainloop()
+
+def choose_file() -> str:
+    files_paths.append(filedialog.askopenfilename(
+        title="Choose file",
+        filetypes=[
+            ("Text files", ".txt"),
+        ],
+        initialdir="/"
+    ))
+
+def handle_file(fp) -> list:
+    try:
+        with open(fp, "r") as f:
+            return f.readlines()
+    except ( FileNotFoundError, PermissionError, UnicodeDecodeError) as e:
+        print(f"File handle error: {e}")
+        return []
+
+def merge():
+    if len(files_paths) != 2:
+        print("Except files_paths isn't exsist")
+        result = messagebox.showinfo(title="Warning!", message="You don't choose all files paths.")
+    else:
+        files_content: list = []
+        files_content.append(list(dict.fromkeys(handle_file(files_paths[0]))))
+        files_content.append(list(dict.fromkeys(handle_file(files_paths[1]))))
+        files_content[0][len(files_content[0])-1] = files_content[0][len(files_content[0])-1] + "\n"
+        files_content[1][len(files_content[1])-1] = files_content[1][len(files_content[1])-1] + "\n"
+        result = "".join(list(dict.fromkeys(list(files_content[0] + files_content[1]))))
+        try: 
+            with open("merged_file.txt", "w") as f:
+                f.write(result)
+        except (FileExistsError, PermissionError, UnicodeDecodeError) as e:
+            print(f"File merge error: ")
+
+if __name__ == "__main__":
+    main()
