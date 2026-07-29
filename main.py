@@ -3,7 +3,6 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 
-global file_paths
 files_paths: list = []
 
 def main() -> None:
@@ -13,7 +12,7 @@ def main() -> None:
     frm.grid()
     ttk.Button(frm, text="Choose file", command=choose_file).grid(column=0, row=0)
     ttk.Button(frm, text="Choose file", command=choose_file).grid(column=1, row=0)
-    ttk.Button(frm, text="Merge", command=merge).grid(column=0, row=1)
+    ttk.Button(frm, text="Merge", command=process).grid(column=0, row=1)
     root.mainloop()
 
 def choose_file() -> str:
@@ -33,22 +32,22 @@ def handle_file(fp) -> list:
         print(f"File handle error: {e}")
         return []
 
-def merge():
+def process():
     if len(files_paths) != 2:
         print("Except files_paths isn't exsist")
         result = messagebox.showinfo(title="Warning!", message="You don't choose all files paths.")
     else:
-        files_content: list = []
-        files_content.append(list(dict.fromkeys(handle_file(files_paths[0]))))
-        files_content.append(list(dict.fromkeys(handle_file(files_paths[1]))))
-        files_content[0][len(files_content[0])-1] = files_content[0][len(files_content[0])-1] + "\n"
-        files_content[1][len(files_content[1])-1] = files_content[1][len(files_content[1])-1] + "\n"
-        result = "".join(list(dict.fromkeys(list(files_content[0] + files_content[1]))))
+        result = merge(f1 = list(dict.fromkeys(handle_file(files_paths[0]))), f2 = list(dict.fromkeys(handle_file(files_paths[1]))))
         try: 
             with open("merged_file.txt", "w") as f:
                 f.write(result)
         except (FileExistsError, PermissionError, UnicodeDecodeError) as e:
             print(f"File merge error: ")
+
+def merge(f1: list, f2: list) -> str:
+    f1[len(f1)-1] = f1[len(f1)-1] + "\n"
+    f2[len(f2)-1] = f2[len(f2)-1] + "\n"
+    return "".join(list(dict.fromkeys(list(f1 + f2))))
 
 if __name__ == "__main__":
     main()
